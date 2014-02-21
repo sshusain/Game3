@@ -1,8 +1,8 @@
 //bools
-var simpleGame
+var simpleGame, roundOn;
 
 //integers
-var numCards, gameSpeed, roundsLeft, p1score, numGraphs, curCard, swapsLeft;
+var numCards, gameSpeed, roundsLeft, p1score, numGraphs, curCard, swapsLeft, correctCard;
 
 //arrays
 var graphTypes, graphChosen, cardList, masterParms, distCard;
@@ -276,7 +276,7 @@ function flipDown()
 function setBoard()
 {
 	$("#facecard").html("Let's play a game!");
-	$("#facecard").css({"position":"relative","top":"350px","height":"200px","width":"500px", "background-color":"rgb(50,200,60)", "text-align":"center", "line-height":"200px", "font-family":"Verdana","font-size":"2.5em", "color":"white"})
+	$("#facecard").css({"position":"relative","top":"350px","height":"200px","width":"1000px", "background-color":"rgb(50,200,60)", "text-align":"center", "line-height":"200px", "font-family":"Verdana","font-size":"2.5em", "color":"white"})
 	$("#board").css({"position":"relative", "top":"110px","width":((190*(numCards)+50*(numCards-1))+"px"),"z-index":"0","height":(110)+"px","background-color":"rgb(255, 255, 255)"});
 	for(var j=0;j<numCards;j++)
 	{
@@ -328,8 +328,12 @@ function swapCards(card1, card2, card1x, card2x)
 	animateAround(card2, (card2x-card1x)/2, card2x, 210, -1, 0,gameSpeed)
 	swapsLeft--;
 	if(swapsLeft<1)
-	{
+	{console.log("flip done")
 		window.clearInterval(intervalKey)
+		correctCard=Math.floor(Math.random()*numCards);
+		$("#facecard").flip({
+			direction:"tb", color:"red", content:("Select the "+(cardList[correctCard].dist.getDist())+" distribution")
+		})
 	}
 	window.setTimeout(function(){console.log("namechange!!!!!!!!!!!!"+card1+" "+card2);
 		var temp=card1;

@@ -2,7 +2,7 @@
 var simpleGame, roundOn;
 
 //integers
-var numCards, gameSpeed, roundsLeft, p1score, numGraphs, curCard, swapsLeft, correctCard, answeredCard;
+var numCards, gameSpeed, roundsLeft, p1score, numGraphs, curCard, swapsLeft, correctCard, answeredCard, numRounds;
 
 //arrays
 var graphTypes, graphChosen, cardList, masterParms, distCard;
@@ -13,6 +13,9 @@ var distributions, intervalKey;
 $(document).ready(function() {
 	
 	$('#startup-modal').modal('show');
+    
+	//printer button
+	$('#printResultsButton').click(function() { window.print(); });
 	
 	$('#startup-modal').on('hidden.bs.modal', function (e) {
 		boardSetup();
@@ -44,6 +47,7 @@ function boardSetup()
 	roundsLeft=Number($('input[name="gamelength"]:checked').val());
 	cardList=new Array();
 	masterParms=new Array();
+	numRounds=roundsLeft;
 	for(var j=0;j<31;j++)
 	{
 		masterParms[j]=getParms(j+1);
@@ -163,127 +167,31 @@ function endRound()
 			content:"Incorrect! Too Bad!"
 		})
 	}
+	
+	//checks to see if game is over
 	if(roundsLeft>0)
 	{
 		window.setTimeout(function(){startRound()},1500);
 	}
+	
+	//endgame sequence
 	else
 	{
 		window.setTimeout(function()
 		{
 			$("#game").empty();
 			$("#yourscore").html(p1score);
-			$("#finalmess").html("<b>It's a tie!</b>");
+			if(p1score<numRounds/2)
+				$("#finalmess").html("<b>You need more practice!</b>");
+			else if(p1score<numRounds)
+				$("#finalmess").html("<b>Great Job! Try to get a perfect score next time!</b>");
+			else
+				$("#finalmess").html("<b>Wow! Perfect Score!</b>");
 			$('#results-modal').modal('show');
 			
 		},1000);
 	}
-	/* if(currRound<numGraphs)
-		window.setTimeout(function(){startRound()},1500);
-	else
-	{
-		window.setTimeout(function()
-		{
-			$("#game").empty();
-			$("#yourscore").html(p1score);
-			$("#hisscore").html(p2score);
-			if(p1score>p2score)
-				$("#finalmess").html('<b>Congratulations, you win!</b>');
-			else if(p2score>p1score)
-				$("#finalmess").html('<b>You lose. Better luck next time!</b>');
-			else
-				$("#finalmess").html("<b>It's a tie!</b>");
-			$('#results-modal').modal('show');
-			
-		},1000);
-	} */
 }
-
-
-//determines scores and performs board cleanup
-function reconcileBoard()
-{
-	for(var i=0;i<2;i++)
-	{
-		numRight[i]=0;
-		numWrong[i]=0;
-	}
-	for(var i=0;i<numCards;i++)
-	{
-		if(cardList[i].controller!=0)
-		{
-			if(chosenGraph[i]==roundCard[currRound-1])
-			{
-				numRight[(cardList[i].controller==1)?0:1]++;
-				if(cardList[i].controller==1)
-				{
-					if(answerFound)
-					{
-						smartTime+=answerTimes[i];
-						smartTime/=2;
-					}
-					else
-					{
-						smartTime+=answerTimes[i];
-						answerFound=true;
-					}
-				}
-			}
-			else
-				numWrong[(cardList[i].controller==1)?0:1]++;
-		}
-	}
-	p1bonus*=(numRight[0]>0)?numRight[0]:1;
-	p2bonus*=(numRight[1]>0)?numRight[1]:1;
-	if(numWrong[0]>0)
-		p1bonus=1;
-	if(numWrong[1]>0)
-		p2bonus=1;
-	p1score+=(numRight[0]-numWrong[0])*p1bonus;
-	p2score+=(numRight[1]-numWrong[1])*p2bonus;
-	$("#scores").html('P1 Score: <b>'+p1score+'</b> P2 Score: <b>'+p2score+'</b><br>P1 Combo Multiplier: <b>x'+p1bonus+'</b> P2 Combo Multiplier: <b>x'+p2bonus+"</b>");
-	for(var i=0;i<numCards;i++)
-	{
-		cardList[i].deselect();
-	}
-}
-
-//flips down correct cards
-function flipDown()
-{
-	var curDown=0,nextFlip=0;
-	for(var j=0;j<numCards;j++)
-	{
-		if(chosenGraph[j]==roundCard[currRound-1])
-		{
-			downCards[curDown]=j;
-			var color;
-			if(cardList[j].controller==1)
-			{
-				downColor[curDown]="green";
-			}
-			else if(cardList[j].controller==-1)
-			{
-				downColor[curDown]="red";
-			}
-			else
-			{
-				downColor[curDown]="black";
-			}
-			curDown++;
-			$("#card"+j).flip({
-				direction:'tb',
-				onEnd:function(){
-				var flipDex=downCards[nextFlip];
-				nextFlip++;
-					$("#card"+flipDex).hide();
-					$("#space"+flipDex).append('<img src="scripts/images/'+downColor[nextFlip-1]+'.jpg" id="color'+flipDex+'"></img>');
-					$("#color"+flipDex).css({"width":"190","height":"90", "float":"left","border-style":"solid","border-width":"5px","border-color":"rgb(194, 194, 208)"}); 
-				}
-			});
-		}
-	}
-};
 
 //creates gameboard using recieved parameters;
 function setBoard()
@@ -350,6 +258,7 @@ function swapCards(card1, card2, card1x, card2x)
 			color:"#008B8B", 
 			content:("Select the "+(cardList[correctCard].dist.getDist())+" distribution")
 		})
+		console.log("Correct card: "+correctCard);
 	}
 	window.setTimeout(function(){console.log("namechange!!!!!!!!!!!!"+card1+" "+card2);
 		var temp=card1;

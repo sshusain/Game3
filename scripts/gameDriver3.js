@@ -79,6 +79,8 @@ function startRound()
 	getGraphs();
 	distCard=new Array()
 	curCard=0;
+	
+	//shows identity of each card, then hides again
 	for(var j=0;j<numCards;j++)
 	{
 		$("#card"+j).flip({
@@ -105,20 +107,28 @@ function startRound()
 			curCard++;
 		},2000);
 	}
-	swapsLeft=1;
+	swapsLeft=5;
  	window.setTimeout(function(){
 		intervalKey=window.setInterval(function(){
+		
+		//select cards to be swapped
 		var c1=Math.floor(Math.random()*numCards);
 		var c2;
+		
+		//check to make sure 2 different cards are selected
 		do{c2=Math.floor(Math.random()*numCards)}while(c2==c1)
+		
+		//sort cards in ascending order
 		if(c1>c2)
 		{
 			var tempc=c1;
 			c1=c2;
 			c2=tempc
 		}
+		
+		//swap cards
 		swapCards("#space"+c1,"#space"+c2,(c1*(190+40)),(c2*(190+40)));
-		},1000/gameSpeed+120);
+		},1000/gameSpeed+320);
 	},3200); 
 	
 	
@@ -274,6 +284,7 @@ function setBoard()
 	}
 }
 
+//obtains random graph types for each card on board
 function getGraphs()
 {
 	graphTypes=new Array();
@@ -295,6 +306,7 @@ function getGraphs()
 	}
 }
 
+//function to animate any HTML object in an elliptical path
 //total time:1000/speed
 function animateAround(name,radius,startX, startY, dir, theta, speed)
 {
@@ -308,18 +320,22 @@ function animateAround(name,radius,startX, startY, dir, theta, speed)
 		window.setTimeout(function(){animateAround(name, radius, startX, startY, dir, theta, speed)}, 10/speed)
 	}
 }
+
+//function to swap 2 cards
 function swapCards(card1, card2, card1x, card2x)
 {console.log(card1+" "+card2);
 	animateAround(card1, (card2x-card1x)/2, card1x, 210, 1, 0,gameSpeed)
 	animateAround(card2, (card2x-card1x)/2, card2x, 210, -1, 0,gameSpeed)
 	swapsLeft--;
 	if(swapsLeft<1)
+	{
 		window.clearInterval(intervalKey)
-	window.setTimeout(function(){
+	}
+	window.setTimeout(function(){console.log("namechange!!!!!!!!!!!!"+card1+" "+card2);
 		var temp=card1;
 		var temp2=card2;
 		$(card1).attr('id',"temp")
-		$(card2).attr('id',"HHH")
-		$("#temp").attr('id',temp2) 
-	},1000/gameSpeed+70)
+		$(card2).attr('id',card1.substring(1))
+		$("#temp").attr('id',card2.substring(1)) 
+	},1000/gameSpeed+220)
 }

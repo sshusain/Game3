@@ -2,7 +2,7 @@
 var simpleGame, roundOn;
 
 //integers
-var numCards, gameSpeed, roundsLeft, p1score, numGraphs, curCard, swapsLeft, correctCard;
+var numCards, gameSpeed, roundsLeft, p1score, numGraphs, curCard, swapsLeft, correctCard, answeredCard;
 
 //arrays
 var graphTypes, graphChosen, cardList, masterParms, distCard;
@@ -29,7 +29,9 @@ $(document).ready(function() {
 	{ 
 		if(roundOn)
 		{
-			answerTimes[Number(this.id.substring(4,this.id.length))]=1-cardList[Number(this.id.substring(4,this.id.length))].p1select();
+			answeredCard=Number(this.id.substring(4,this.id.length));
+			console.log(answeredCard);
+			endRound();
 		}
 	}); 
 });
@@ -138,34 +140,45 @@ function startRound()
 //ends current round
 function endRound()
 {
-	currRound++;
+	roundsLeft--;
 	roundOn=false;
 	smartTime=0;
-	$("#facecard").flip({
-		direction:'bt',
-		onEnd:function(){
-			$("#backimage").show();
-			$("#distcanv").remove();
+	
+	//compares selected card to actual card
+	if(answeredCard==correctCard)
+	{
+		p1score++;
+		$("#facecard").flip({
+			direction:"tb", 
+			color:"rgb(50,200,60)", 
+			content:"Correct!"
+		})
+	}
+	
+	else
+	{
+		$("#facecard").flip({
+			direction:"tb", 
+			color:"red", 
+			content:"Incorrect! Too Bad!"
+		})
+	}
+	if(roundsLeft>0)
+	{
+		window.setTimeout(function(){startRound()},1500);
+	}
+	else
+	{
+		window.setTimeout(function()
+		{
+			$("#game").empty();
+			$("#yourscore").html(p1score);
+			$("#finalmess").html("<b>It's a tie!</b>");
+			$('#results-modal').modal('show');
 			
-		}
-	});
-	if(hideCards)
-	flipDown();
-	reconcileBoard();
-	if(answerFound)
-	{
-		weightedAverage+=smartTime;
-		weightedAverage/=2;
+		},1000);
 	}
-	if(smartAI)
-	{
-		startTimes[enemyDiff]+=(weightedAverage-startTimes[enemyDiff]+smartAdd[enemyDiff])*smartMult[enemyDiff];
-		if(startTimes[enemyDiff]<0)
-			startTimes[enemyDiff]=.05;
-		if(startTimes[enemyDiff]>1)
-			startTimes[enemyDiff]=.95;
-	}
-	if(currRound<numGraphs)
+	/* if(currRound<numGraphs)
 		window.setTimeout(function(){startRound()},1500);
 	else
 	{
@@ -183,7 +196,7 @@ function endRound()
 			$('#results-modal').modal('show');
 			
 		},1000);
-	}
+	} */
 }
 
 
@@ -321,7 +334,7 @@ function animateAround(name,radius,startX, startY, dir, theta, speed)
 	}
 }
 
-//function to swap 2 cards
+//function to swap 2 cards, and prompt for choice
 function swapCards(card1, card2, card1x, card2x)
 {console.log(card1+" "+card2);
 	animateAround(card1, (card2x-card1x)/2, card1x, 210, 1, 0,gameSpeed)
@@ -331,8 +344,11 @@ function swapCards(card1, card2, card1x, card2x)
 	{console.log("flip done")
 		window.clearInterval(intervalKey)
 		correctCard=Math.floor(Math.random()*numCards);
+		roundOn=true;
 		$("#facecard").flip({
-			direction:"tb", color:"red", content:("Select the "+(cardList[correctCard].dist.getDist())+" distribution")
+			direction:"tb", 
+			color:"#008B8B", 
+			content:("Select the "+(cardList[correctCard].dist.getDist())+" distribution")
 		})
 	}
 	window.setTimeout(function(){console.log("namechange!!!!!!!!!!!!"+card1+" "+card2);

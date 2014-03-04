@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <title>Distributome Game 3: Matching Density curves to Density Names</title>
+<head>	
+	<meta http-equiv="content-type" content="text/html; charset=UTF8">
+	<title>Distributome Game 3: Matching Density curves to Density Names</title>
   
-  <link type="text/css" href="./data/bootstrap.min.css" rel='stylesheet'/>
+	<link type="text/css" href="./data/bootstrap.min.css" rel='stylesheet'/>
     <link href="./data/bootstrapSwitch.css" rel="stylesheet">
     <link rel="stylesheet" href="./data/font-awesome.min.css">
     <link type="text/css" href="./basic/DistributomeNavigator_V3.css" rel="stylesheet"/>
@@ -13,18 +14,19 @@
     <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
 
   
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-  <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.min.js"></script>
-  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  <script src="./scripts/jquery.flip.js"></script>
-  <script src="./scripts/monteClass.js"></script>
-  <script src="./scripts/devices.js"></script>
-  <script src="./scripts/distributions.js"></script>
-  <script src="./scripts/distMakerClass2.js"></script>
-  <script src="./scripts/parmFinder.js"></script>
-  <script src="./scripts/bootstrap.min.js"></script>
-  <script src="./scripts/gameDriver3.js"></script>
-  <script src="http://d3js.org/d3.v3.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.min.js"></script>
+	<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="./scripts/jquery.flip.js"></script>
+	<script src="./scripts/monteClass.js"></script>
+	<script src="./scripts/devices.js"></script>
+	<script src="./scripts/distributions.js"></script>
+	<script src="./scripts/distMakerClass2.js"></script>
+	<script src="./scripts/histMakerClass2.js"></script>
+	<script src="./scripts/parmFinder.js"></script>
+	<script src="./scripts/bootstrap.min.js"></script>
+	<script src="./scripts/gameDriver3.js"></script>
+	<script src="http://d3js.org/d3.v3.js"></script>
 </head>
 <body>
 
@@ -96,7 +98,16 @@
 							</label>
 						</div>
 						<br><br>
-						
+						<b>Matching Mode</b>
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-primary">
+								<input name="textmode" value="1" type="radio"> Name
+							</label>
+							<label class="btn btn-primary">
+								<input name="textmode" value="0" checked="checked" type="radio"> Histogram
+							</label>
+						</div>
+						<br><br>
 						<b>Game Speed </b>
 						<div class="btn-group" data-toggle="buttons">
 							<label class="btn btn-primary">
@@ -141,6 +152,7 @@
 					<div class="modal-body">
 						<h4>Your Score:</h4>
 						<p id="yourscore" >0</p>
+						<p id="stats"></p>
 						<p id="finalmess"></p>
 						
 					</div>
@@ -156,7 +168,9 @@
 			<section id="board"></section> 
 			<br>
 			<br>
-			<section id="facecard"></section>
+			<section id="flipsection">
+				<section id="facecard"></section>
+			</section>
 			<section id="scores"></section> 
 		</section> 
 	</div>

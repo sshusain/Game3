@@ -1,8 +1,8 @@
 //bools
-var simpleGame, roundOn;
+var simpleGame, roundOn, textMode;
 
 //integers
-var numCards, gameSpeed, roundsLeft, p1score, numGraphs, curCard, swapsLeft, correctCard, answeredCard, numRounds;
+var numCards, gameSpeed, roundsLeft, p1score, numGraphs, curCard, swapsLeft, correctCard, answeredCard, numRounds, longestStreak, currStreak;
 
 //arrays
 var graphTypes, graphChosen, cardList, masterParms, distCard;
@@ -42,6 +42,8 @@ $(document).ready(function() {
 //sets up board for a new game
 function boardSetup()
 {
+	longestStreak=0;
+	currStreak=0;
 	numCards=Number($('input[name="numcards"]:checked').val());
 	gameSpeed=Number($('input[name="gamespeed"]:checked').val());
 	roundsLeft=Number($('input[name="gamelength"]:checked').val());
@@ -58,6 +60,13 @@ function boardSetup()
 		simpleGame=false;
 	else
 		simpleGame=true;
+		
+	if($('input[name="textmode"]:checked').val()==1)
+		textMode=true;
+	else
+		textMode=false;
+	
+	console.log(textMode)
 	
 	//determines list of selectable graphs
 	if(simpleGame)
@@ -74,8 +83,6 @@ function boardSetup()
 	
 	//wipes instructions and creates board	
 	setBoard();
-/* 	$("#scores").html('P1 Score: <b>'+p1score+'</b> P2 Score: <b>'+p2score+'</b><br>P1 Combo Multiplier: <b>x'+p1bonus+'</b> P2 Combo Multiplier: <b>x'+p2bonus+"</b>"); */
-	
 	window.setTimeout(function(){startRound()},2000);
 }
 
@@ -134,11 +141,13 @@ function startRound()
 		
 		//swap cards
 		swapCards("#space"+c1,"#space"+c2,(c1*(190+40)),(c2*(190+40)));
-		},1000/gameSpeed+320);
+		},1200/gameSpeed+900);
 	},3200); 
 	
-	
-	roundOn=true;
+	window.setTimeout(function(){
+		console.log("start clickEvent");
+		roundOn=true;
+	},3200+(1000+1200/gameSpeed)*5)
 }
 
 //ends current round
@@ -150,24 +159,56 @@ function endRound()
 	
 	//compares selected card to actual card
 	if(answeredCard==correctCard)
-	{
+	{console.log("correct");
+		currStreak++;
 		p1score++;
-		$("#facecard").flip({
-			direction:"tb", 
-			color:"rgb(50,200,60)", 
-			content:"Correct!"
-		})
+		if(textMode)
+			$("#facecard").flip({
+				direction:"tb", 
+				color:"rgb(50,200,60)", 
+				content:"Correct!"
+			})
+		else
+		{
+			$("#facecard").css({"background-color":"rgb(50,200,60)"})
+			$("#facecard").text("Correct!")
+			$("#hist"+correctCard).flip({
+				direction:"tb", 
+				color:"rgb(50,200,60)", 
+				onEnd:function(){
+					$("#hist"+correctCard).remove()
+					$("#facecard").show()
+				}
+			})
+		}
 	}
 	
 	else
 	{
-		$("#facecard").flip({
-			direction:"tb", 
-			color:"red", 
-			content:"Incorrect! Too Bad!"
-		})
+		if(currStreak>longestStreak)
+			longestStreak=currStreak;
+		currStreak=0;
+		if(textMode)
+			$("#facecard").flip({
+				direction:"tb", 
+				color:"red", 
+				content:"Incorrect! Too Bad!"
+			})
+		else
+		{console.log("wrong")
+			$("#facecard").css({"background-color":"red"})
+			$("#facecard").text("Incorrect! Too Bad!")
+			$("#hist"+correctCard).flip({
+				direction:"tb", 
+				color:"rgb(50,200,60)", 
+				onEnd:function(){
+					$("#hist"+correctCard).remove()
+					$("#facecard").show()
+				}
+			})
+		}
 	}
-	
+	console.log("streak"+currStreak+" longest: "+longestStreak);
 	//checks to see if game is over
 	if(roundsLeft>0)
 	{
@@ -181,6 +222,8 @@ function endRound()
 		{
 			$("#game").empty();
 			$("#yourscore").html(p1score);
+			console.log(numRounds+" score: "+p1score);
+			$("#stats").html("<h4>Longest Streak:</h4><p>"+longestStreak+"</p><h4>Accuracy:</h4><p>"+(p1score*100/numRounds).toFixed(2)+"%</p>");
 			if(p1score<numRounds/2)
 				$("#finalmess").html("<b>You need more practice!</b>");
 			else if(p1score<numRounds)
@@ -197,7 +240,12 @@ function endRound()
 function setBoard()
 {
 	$("#facecard").html("Let's play a game!");
-	$("#facecard").css({"position":"relative","top":"350px","height":"200px","width":"1000px", "background-color":"rgb(50,200,60)", "text-align":"center", "line-height":"200px", "font-family":"Verdana","font-size":"2.5em", "color":"white"})
+	$("#facecard").css({"position":"relative","top":"0px","height":"200px","width":"1000px", "background-color":"rgb(50,200,60)", "text-align":"center", "line-height":"200px", "font-family":"Verdana","font-size":"2.5em", "color":"white"})
+	$("#flipsection").css({"position":"relative","top":"250px","height":"200px","width":"1000px"})
+	if(!textMode)
+	{
+		$("#facecard").css({"height":"200px","width":"400px", "top":"0px"})
+	}
 	$("#board").css({"position":"relative", "top":"110px","width":((190*(numCards)+50*(numCards-1))+"px"),"z-index":"0","height":(110)+"px","background-color":"rgb(255, 255, 255)"});
 	for(var j=0;j<numCards;j++)
 	{
@@ -233,9 +281,9 @@ function animateAround(name,radius,startX, startY, dir, theta, speed)
 {
 	theta+=.01;
 	var nextX=(Math.cos(theta*Math.PI+Math.PI)+1)*radius*dir+startX;
-	var nextY=(-1)*Math.sin(theta*Math.PI+Math.PI)*100*dir+startY;
+	var nextY=startY+(-1)*Math.sin(theta*Math.PI+Math.PI)*100*dir;
 	$(name).css({"left":nextX+"px"});
-	$(name).css({"top":nextY+"px"});
+	$(name).css({"bottom":nextY+"px"});
 	if(theta<1)
 	{
 		window.setTimeout(function(){animateAround(name, radius, startX, startY, dir, theta, speed)}, 10/speed)
@@ -244,20 +292,37 @@ function animateAround(name,radius,startX, startY, dir, theta, speed)
 
 //function to swap 2 cards, and prompt for choice
 function swapCards(card1, card2, card1x, card2x)
-{console.log(card1+" "+card2);
-	animateAround(card1, (card2x-card1x)/2, card1x, 210, 1, 0,gameSpeed)
-	animateAround(card2, (card2x-card1x)/2, card2x, 210, -1, 0,gameSpeed)
+{
+	animateAround(card1, (card2x-card1x)/2, card1x, 90*Number($(card1).children().attr('id').substring(4,$(card1).children().attr('id').length))-30, 1, 0,gameSpeed)
+	animateAround(card2, (card2x-card1x)/2, card2x, 90*Number($(card2).children().attr('id').substring(4,$(card2).children().attr('id').length))-30, -1, 0,gameSpeed)
 	swapsLeft--;
 	if(swapsLeft<1)
 	{console.log("flip done")
 		window.clearInterval(intervalKey)
 		correctCard=Math.floor(Math.random()*numCards);
 		roundOn=true;
-		$("#facecard").flip({
-			direction:"tb", 
-			color:"#008B8B", 
-			content:("Select the "+(cardList[correctCard].dist.getDist())+" distribution")
-		})
+		if(textMode)
+		{
+			$("#facecard").flip({
+				direction:"tb", 
+				color:"#008B8B", 
+				content:("Select the "+(cardList[correctCard].dist.getDist())+" distribution")
+			})
+		}
+		else
+		{
+			$("#facecard").flip({
+				direction:"tb", 
+				onEnd: function()
+				{
+					var histogram=new histMaker(graphTypes[correctCard]+1,500,correctCard, masterParms[correctCard] )
+				$("#flipsection").append('<canvas id="hist'+correctCard+'"></canvas>');
+				histogram.initializeExperiment();
+				$("#hist"+correctCard).css({"width":"400","background-color":"white","height":"200"});
+				$("#facecard").hide();				
+				}
+			})
+		}
 		console.log("Correct card: "+correctCard);
 	}
 	window.setTimeout(function(){console.log("namechange!!!!!!!!!!!!"+card1+" "+card2);
@@ -266,5 +331,5 @@ function swapCards(card1, card2, card1x, card2x)
 		$(card1).attr('id',"temp")
 		$(card2).attr('id',card1.substring(1))
 		$("#temp").attr('id',card2.substring(1)) 
-	},1000/gameSpeed+220)
+	},1200/gameSpeed+700)
 }

@@ -6,7 +6,7 @@ setIntervalWithContext = function(code,delay,context){
 
 function histMaker(num1, num2, num3, parm1)
 {
-	//Beta-Negative Binomial distribution smulation
+	//Beta-Negative Binomial distribution simulation
 	this.runID=0;
 	this.runCount = 0;this.stopCount = 0; this.stopFreq = num2;
 	this.dist=0;this.distGraph=0;
@@ -16,11 +16,11 @@ function histMaker(num1, num2, num3, parm1)
 	this.cardNum=num3;
 	cardNum2=this.cardNum;
 	this.initializeExperiment=function(){
-		this.distCanvas = document.getElementById("card"+this.cardNum);
+		this.distCanvas = document.getElementById("hist"+this.cardNum);
 		this.resetExperiment();
 	}
 	this.runExperiment=function(){
-		this.runID = setIntervalWithContext(function(){this.simulate();},1,this);
+		this.simulateN();
 	}
 
 	this.stopExperiment=function(){
@@ -201,6 +201,11 @@ function histMaker(num1, num2, num3, parm1)
 		this.stopCount++;
 		this.dist.simulate();
 		if (this.stopCount == this.stopFreq) this.stopExperiment();
+		this.distGraph.draw();
+	}
+	this.simulateN=function(){
+		for(var j=0;j<this.stopFreq;j++)
+			this.dist.simulate();
 		this.distGraph.draw();
 	}
 

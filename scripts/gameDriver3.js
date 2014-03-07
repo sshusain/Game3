@@ -236,12 +236,16 @@ function endRound()
 			
 		},1000);
 	}
+	$("#scores").html('<p>Score: '+p1score+'</p><p>Current Round: '+(numRounds-roundsLeft+1)+'</p><p>Rounds Left: '+(roundsLeft-1)+'</p><p>Longest Streak: '+longestStreak+'</p>')
+
 }
 
 //creates gameboard using recieved parameters;
 function setBoard()
 {
 	$("#facecard").html("Let's play a game!");
+	$("#scores").html('<p>Score: 0</p><p>Current Round: 1</p><p>Rounds Left: '+numRounds+'</p><p>Longest Streak: 0</p>')
+	$("#scores").css({"position":"relative", "left":(((textMode)?1000:400)+15)+"px", "top":"50px","border-style":"solid", "width":"200px"})
 	$("#facecard").css({"position":"relative","top":"0px","height":"200px","width":"1000px", "background-color":"rgb(50,200,60)", "text-align":"center", "line-height":"200px", "font-family":"Verdana","font-size":"2.5em", "color":"white"})
 	$("#flipsection").css({"position":"relative","top":"250px","height":"200px","width":"1000px"})
 	if(!textMode)

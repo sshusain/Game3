@@ -49,6 +49,7 @@ function boardSetup()
 	roundsLeft=Number($('input[name="gamelength"]:checked').val());
 	cardList=new Array();
 	masterParms=new Array();
+	makeBar((190*(numCards)+50*(numCards-1)),2)
 	numRounds=roundsLeft;
 	for(var j=0;j<31;j++)
 	{
@@ -208,6 +209,7 @@ function endRound()
 			})
 		}
 	}
+	changeBar([p1score,numRounds-roundsLeft-p1score],numRounds)
 	console.log("streak"+currStreak+" longest: "+longestStreak);
 	//checks to see if game is over
 	if(roundsLeft>0)

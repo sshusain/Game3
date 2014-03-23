@@ -1,5 +1,5 @@
 //bools
-var simpleGame, roundOn, textMode;
+var simpleGame, roundOn, textMode, needSwap;
 
 //integers
 var numCards, gameSpeed, roundsLeft, p1score, numGraphs, curCard, swapsLeft, correctCard, answeredCard, numRounds, longestStreak, currStreak;
@@ -42,6 +42,7 @@ $(document).ready(function() {
 //sets up board for a new game
 function boardSetup()
 {
+	needSwap=true;
 	longestStreak=0;
 	currStreak=0;
 	numCards=Number($('input[name="numcards"]:checked').val());
@@ -122,9 +123,14 @@ function startRound()
 		},2000);
 	}
 	swapsLeft=5;
- 	window.setTimeout(function(){
-		intervalKey=window.setInterval(function(){
-		
+	roundOn=false;
+ 	window.setTimeout(function(){swapNext()},3200); 
+}
+
+function swapNext()
+{
+	if(swapsLeft>0)
+	{
 		//select cards to be swapped
 		var c1=Math.floor(Math.random()*numCards);
 		var c2;
@@ -140,15 +146,40 @@ function startRound()
 			c2=tempc
 		}
 		
+		swapsLeft--;
 		//swap cards
 		swapCards("#space"+c1,"#space"+c2,(c1*(190+40)),(c2*(190+40)));
-		},1200/gameSpeed+900);
-	},3200); 
-	
-	window.setTimeout(function(){
-		console.log("start clickEvent");
+		
+	}
+	else
+	{
+		console.log("flip done")
+		correctCard=Math.floor(Math.random()*numCards);
 		roundOn=true;
-	},3200+(1000+1200/gameSpeed)*5)
+		if(textMode)
+		{
+			$("#facecard").flip({
+				direction:"tb", 
+				color:"#008B8B", 
+				content:("Select the "+(cardList[correctCard].dist.getDist())+" distribution")
+			})
+		}
+		else
+		{
+			$("#facecard").flip({
+				direction:"tb", 
+				onEnd: function()
+				{
+					var histogram=new histMaker(graphTypes[correctCard]+1,500,correctCard, masterParms[correctCard] )
+				$("#flipsection").append('<canvas id="hist'+correctCard+'"></canvas>');
+				histogram.initializeExperiment();
+				$("#hist"+correctCard).css({"width":"400","background-color":"white","height":"200"});
+				$("#facecard").hide();				
+				}
+			})
+		}
+		console.log("Correct card: "+correctCard);
+	}
 }
 
 //ends current round
@@ -281,9 +312,21 @@ function getGraphs()
 	}
 }
 
+function swapID(name1, name2)
+{
+	needSwap=!needSwap;
+	if(needSwap)
+	{
+		$(name1).attr('id',"temp")
+		$(name2).attr('id',name1.substring(1))
+		$("#temp").attr('id',name2.substring(1)) 
+		swapNext();
+	}
+}
+
 //function to animate any HTML object in an elliptical path
 //total time:1000/speed
-function animateAround(name,radius,startX, startY, dir, theta, speed)
+function animateAround(name,radius,startX, startY, dir, theta, speed, swapstring)
 {
 	theta+=.01;
 	var nextX=(Math.cos(theta*Math.PI+Math.PI)+1)*radius*dir+startX;
@@ -292,50 +335,17 @@ function animateAround(name,radius,startX, startY, dir, theta, speed)
 	$(name).css({"bottom":nextY+"px"});
 	if(theta<1)
 	{
-		window.setTimeout(function(){animateAround(name, radius, startX, startY, dir, theta, speed)}, 10/speed)
+		window.setTimeout(function(){animateAround(name, radius, startX, startY, dir, theta, speed, swapstring)}, 10/speed)
+	}
+	else
+	{
+		swapID(name, swapstring);
 	}
 }
 
 //function to swap 2 cards, and prompt for choice
 function swapCards(card1, card2, card1x, card2x)
 {
-	animateAround(card1, (card2x-card1x)/2, card1x, 90*Number($(card1).children().attr('id').substring(4,$(card1).children().attr('id').length))-30, 1, 0,gameSpeed)
-	animateAround(card2, (card2x-card1x)/2, card2x, 90*Number($(card2).children().attr('id').substring(4,$(card2).children().attr('id').length))-30, -1, 0,gameSpeed)
-	swapsLeft--;
-	if(swapsLeft<1)
-	{console.log("flip done")
-		window.clearInterval(intervalKey)
-		correctCard=Math.floor(Math.random()*numCards);
-		roundOn=true;
-		if(textMode)
-		{
-			$("#facecard").flip({
-				direction:"tb", 
-				color:"#008B8B", 
-				content:("Select the "+(cardList[correctCard].dist.getDist())+" distribution")
-			})
-		}
-		else
-		{
-			$("#facecard").flip({
-				direction:"tb", 
-				onEnd: function()
-				{
-					var histogram=new histMaker(graphTypes[correctCard]+1,500,correctCard, masterParms[correctCard] )
-				$("#flipsection").append('<canvas id="hist'+correctCard+'"></canvas>');
-				histogram.initializeExperiment();
-				$("#hist"+correctCard).css({"width":"400","background-color":"white","height":"200"});
-				$("#facecard").hide();				
-				}
-			})
-		}
-		console.log("Correct card: "+correctCard);
-	}
-	window.setTimeout(function(){console.log("namechange!!!!!!!!!!!!"+card1+" "+card2);
-		var temp=card1;
-		var temp2=card2;
-		$(card1).attr('id',"temp")
-		$(card2).attr('id',card1.substring(1))
-		$("#temp").attr('id',card2.substring(1)) 
-	},1200/gameSpeed+700)
+	animateAround(card1, (card2x-card1x)/2, card1x, 90*Number($(card1).children().attr('id').substring(4,$(card1).children().attr('id').length))-30, 1, 0,gameSpeed, card2)
+	animateAround(card2, (card2x-card1x)/2, card2x, 90*Number($(card2).children().attr('id').substring(4,$(card2).children().attr('id').length))-30, -1, 0,gameSpeed, card1)
 }
